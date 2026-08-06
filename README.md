@@ -4,3 +4,6 @@
 
 # MCP's
 - https://stape.io/solutions/mcp-server-for-gtm
+
+# Agents
+- https://github.com/multica-ai/multica
