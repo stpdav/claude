@@ -3,9 +3,10 @@
 Everything I build for [Claude Code](https://claude.com/claude-code), in one repo: full
 project frameworks at one end, single skills and commands at the other.
 
-Nothing here is a running application. It is all *configuration for the agent* - skills,
+Nothing here is a running application. It is mostly *configuration for the agent* - skills,
 agents, rules, hooks, and the standards documents that go with them - kept outside any
-product repo so it can be reused, versioned, and improved in one place.
+product repo so it can be reused, versioned, and improved in one place. Alongside that,
+`mcps/` holds the setup runbooks for the MCP servers that give the agent its tools.
 
 ## Layout
 
@@ -15,6 +16,9 @@ frameworks/         complete, deployable Claude Code setups (CLAUDE.md + .claude
 
 skills/             standalone user-level skills, installed into ~/.claude/skills/
   issue-writer/     writing and maintaining issue-tracker tickets
+
+mcps/               setup runbooks for the MCP servers I run, one per server
+  google-ads-mcp.md read-only Google Ads access (GAQL), user scope
 ```
 
 Two levels of granularity, and the difference matters:
@@ -25,6 +29,9 @@ Two levels of granularity, and the difference matters:
 - **`skills/`** - one self-contained capability that travels with me rather than with a
   project. Symlinked into `~/.claude/skills/`, so it is available in every session
   regardless of which repo I am in.
+
+`mcps/` sits outside that axis: not configuration for the agent at all, but the machine
+setup that gives it tools. Run once per machine, and the result lives in `~/.claude.json`.
 
 Commands (`.claude/commands/*.md`) live wherever they belong: inside a framework when they
 are part of that setup, or in a top-level `commands/` directory once there is a personal
@@ -49,6 +56,15 @@ what deploying one involves.
 See [`skills/README.md`](skills/README.md) for install instructions and the convention for
 per-project configuration.
 
+## MCP servers
+
+| Server | What it gives Claude |
+| --- | --- |
+| [`google-ads-mcp`](mcps/google-ads-mcp.md) | Read-only GAQL access to Google Ads accounts (`list_accessible_customers`, `search`). Registered at user scope, so it is available in every project and never committed. |
+
+See [`mcps/README.md`](mcps/README.md) for the shape of a guide, the registration and secret
+conventions, and the servers still to be written up.
+
 ## References
 
 Things I use alongside this repo, kept here so I stop re-finding them.
@@ -56,12 +72,7 @@ Things I use alongside this repo, kept here so I stop re-finding them.
 **Plugins**
 - https://github.com/multica-ai/andrej-karpathy-skills/
 
-**MCP servers**
-- https://www.jetbrains.com/help/youtrack/server/model-context-protocol-server.html
-- https://stape.io/solutions/mcp-server-for-gtm
-- https://supabase.com/docs/guides/ai-tools/mcp
-- https://vercel.com/docs/agent-resources/vercel-mcp
-- https://github.com/googleads/google-ads-mcp
+**MCP servers** - see [`mcps/`](mcps/README.md); upstream links live there.
 
 **Agents**
 - https://github.com/multica-ai/multica

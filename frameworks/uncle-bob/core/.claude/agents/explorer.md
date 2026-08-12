@@ -66,7 +66,7 @@ find . -name "*.test.*" -o -name "*.spec.*" | grep -v node_modules | head -20
 ## Output Format
 
 Always return:
-1. **Summary** - what the code does in 2–3 sentences
+1. **Summary** - what the code does in 2-3 sentences
 2. **Key files** - the most important files and why
 3. **Patterns observed** - naming, structure, conventions in use
 4. **Relevant to task** - what the caller needs to know before proceeding

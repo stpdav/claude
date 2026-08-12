@@ -30,7 +30,7 @@ You handle:
 When asked to document an architecture decision:
 
 1. **Clarify context**: What problem is being solved? What constraints exist?
-2. **List options**: At least 2–3 alternatives considered
+2. **List options**: At least 2-3 alternatives considered
 3. **Evaluate trade-offs**: Use a simple pros/cons or decision matrix
 4. **Record the decision**: Use the ADR template below
 5. **Save to `docs/adr/`**: Numbered sequentially (0001, 0002, ...)
