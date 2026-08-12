@@ -1,0 +1,113 @@
+{
+  "hooks": [
+    {
+      "description": "Warn when a file exceeds 300 lines after editing",
+      "event": "PostToolUse",
+      "matcher": "tool_name in ['Write', 'Edit', 'MultiEdit']",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst fs = require('fs');\nconst path = process.env.TOOL_INPUT_FILE_PATH || '';\nif (!path) process.exit(0);\ntry {\n  const lines = fs.readFileSync(path, 'utf8').split('\\n').length;\n  if (lines > 300) {\n    console.error('[quality] WARNING: ' + path + ' has ' + lines + ' lines (limit: 300). Consider splitting.');\n  }\n} catch(e) { process.exit(0); }\n\""
+        }
+      ]
+    },
+    {
+      "description": "Block npm/bun/yarn - prefer pnpm",
+      "event": "PreToolUse",
+      "matcher": "tool_name == 'Bash'",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst cmd = process.env.TOOL_INPUT_COMMAND || '';\nif (/\\b(npm|bun|yarn)\\s+(add|install|i|remove|uninstall)\\b/.test(cmd) && !/npm install -g/.test(cmd)) {\n  console.error('[quality] Use `pnpm add` instead - this project uses pnpm for package management.');\n  process.exit(2);\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Warn when a plain JavaScript file is written - prefer TypeScript",
+      "event": "PostToolUse",
+      "matcher": "tool_name in ['Write', 'Edit', 'MultiEdit']",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst path = process.env.TOOL_INPUT_FILE_PATH || '';\nif (!path) process.exit(0);\nif (/\\.(js|jsx)$/.test(path) && !/\\.config\\.(js|mjs|cjs)$/.test(path)) {\n  console.error('[ts] ' + path + ' is plain JavaScript. Write TypeScript (.ts/.tsx) - JS only for configs that cannot load TS.');\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Warn on console.log left in TypeScript/JavaScript files",
+      "event": "PostToolUse",
+      "matcher": "tool_name in ['Write', 'Edit'] and (file_path.endswith('.ts') or file_path.endswith('.tsx') or file_path.endswith('.js'))",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst fs = require('fs');\nconst path = process.env.TOOL_INPUT_FILE_PATH || '';\nif (!path) process.exit(0);\ntry {\n  const src = fs.readFileSync(path, 'utf8');\n  if (/console\\.log/.test(src)) {\n    console.error('[quality] Remove console.log before committing: ' + path);\n  }\n} catch(e) { process.exit(0); }\n\""
+        }
+      ]
+    },
+    {
+      "description": "Warn when a new branch has no ticket ID",
+      "event": "PreToolUse",
+      "matcher": "tool_name == 'Bash'",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst cmd = process.env.TOOL_INPUT_COMMAND || '';\nconst m = cmd.match(/git\\s+(?:checkout\\s+-b|switch\\s+-c)\\s+(\\S+)/);\nif (m && !/^-/.test(m[1]) && !/\\b[A-Z][A-Z0-9]*-[0-9]+\\b/.test(m[1])) {\n  console.error('[git] Branch ' + m[1] + ' has no ticket ID. Ticketed work uses type/TICKET-123-short-description (see git-workflow.md).');\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Remind to run checks before committing",
+      "event": "PreToolUse",
+      "matcher": "tool_name == 'Bash'",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst cmd = process.env.TOOL_INPUT_COMMAND || '';\nif (/git\\s+commit/.test(cmd) && !/--amend/.test(cmd)) {\n  console.error('[git] Reminder: run linter + type checker + tests before committing (see git-workflow.md). Proceed only if checks passed.');\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Block direct push to main or master",
+      "event": "PreToolUse",
+      "matcher": "tool_name == 'Bash'",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst cmd = process.env.TOOL_INPUT_COMMAND || '';\nif (/git\\s+push/.test(cmd) && /\\b(main|master)\\b/.test(cmd)) {\n  console.error('[git] Pushing directly to main/master is not allowed. Use a feature branch and open a PR.');\n  process.exit(2);\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Block git push --force",
+      "event": "PreToolUse",
+      "matcher": "tool_name == 'Bash'",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst cmd = process.env.TOOL_INPUT_COMMAND || '';\nif (/git\\s+push/.test(cmd) && /(--force|-f)\\b/.test(cmd)) {\n  console.error('[git] Force push is not allowed. Use --force-with-lease only if you understand the risk, and confirm with the user first.');\n  process.exit(2);\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Warn when pushing without running tests first",
+      "event": "PreToolUse",
+      "matcher": "tool_name == 'Bash'",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node -e \"\nconst cmd = process.env.TOOL_INPUT_COMMAND || '';\nif (/git\\s+push/.test(cmd) && !/--no-verify/.test(cmd)) {\n  console.error('[git] Reminder: run linter + type checker + tests before pushing (see git-workflow.md). Proceed only if checks passed.');\n}\n\""
+        }
+      ]
+    },
+    {
+      "description": "Session recap - print changed files and project state after Claude stops",
+      "event": "Stop",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash -c '\necho \"\"\necho \"════════════════════════════════════════\"\necho \"  SESSION RECAP\"\necho \"════════════════════════════════════════\"\necho \"\"\necho \"── Branch & last commit ──\"\ngit log --oneline -1 2>/dev/null || echo \"(not a git repo)\"\ngit branch --show-current 2>/dev/null\necho \"\"\necho \"── Files changed ──\"\ngit diff --stat HEAD 2>/dev/null\ngit status --short 2>/dev/null\necho \"\"\necho \"── Files approaching 300-line limit ──\"\nfind . -not -path \"*/.git/*\" -not -path \"*/node_modules/*\" -not -path \"*/.next/*\" \\( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.js\" -o -name \"*.jsx\" \\) | xargs wc -l 2>/dev/null | sort -rn | awk \"\\$1 >= 250 && \\$2 != \\\"total\\\"\" | head -10\necho \"\"\necho \"════════════════════════════════════════\"\necho \"\"\n'"
+        }
+      ]
+    }
+  ]
+}
