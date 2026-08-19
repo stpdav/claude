@@ -1,3 +1,8 @@
+---
+name: strategic-orchestrator
+description: Route an open-ended problem to the right strategic framework and execute it immediately without asking for confirmation. USE WHEN the user presents a business, technical, or tactical dilemma with no clear framing - urgent crisis or market shift (OODA), competitor or positioning audit (SWOT/VRIO), regulatory or macro risk (PESTLE), vague execution target needing metrics (SMART), feature creep or over-engineering (KISS/YAGNI), complex architecture needing depth (ULTRATHINK), or a request for blunt expert judgement (L99) - or when the prompt starts with the prefix [AUTO].
+---
+
 # SKILL: Strategic Orchestrator & Framework Router
 
 ## 1. Intent & Purpose
@@ -21,10 +26,12 @@ Evaluate the incoming payload and match it against the following strategic topol
 For every single user turn, you must bypass conversational pleasantries and strictly output two distinct markdown blocks:
 
 ### ⚡ [ROUTING_DECISION]
-State the exact framework or repository skill chosen, followed by a single, punchy sentence explaining why it fits the specific structural topology of the user's issue. 
+State the exact framework or skill chosen, followed by a single, punchy sentence explaining why it fits the specific structural topology of the user's issue. 
 
 ### 🛠️ [EXECUTION]
-Immediately execute the chosen framework or hand off to the relevant repository skill. Deliver maximum information density and actionable data points. Eliminate all introductory filler or meta-commentary.
+Immediately execute the chosen framework or hand off to the relevant skill. Deliver maximum information density and actionable data points. Eliminate all introductory filler or meta-commentary.
 
-## 5. Repository Integration Clause
-If the user's problem is purely technical, creative, or better served by another dedicated `SKILL.md` file in your repository (e.g., `developer.md`, `copywriter.md`), you are authorized to bypass the acronyms above. Instead, state the repository skill you are invoking in `[ROUTING_DECISION]` and execute that file's specific protocol under `[EXECUTION]`.
+## 5. Hand-Off Clause
+If the user's problem is better served by a dedicated skill than by any framework above, you are authorized to bypass the acronyms. State the skill you are invoking in `[ROUTING_DECISION]` and follow that skill's own protocol under `[EXECUTION]`.
+
+Select the target from the current session's available-skills list only. Never invent or assume a skill name: if no listed skill fits, pick a framework from the routing matrix above and execute it yourself.
